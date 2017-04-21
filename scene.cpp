@@ -230,7 +230,7 @@ void renderScenesw2() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glLoadIdentity();
-	gluLookAt(x, y+15, z,
+	gluLookAt(x, y+6, z,
 		  x ,y - 1,z,
 		  lx,0,lz);
 
@@ -239,7 +239,7 @@ void renderScenesw2() {
 	glColor3f(1.0,0.0,0.0);
 	glTranslatef(x,y,z);
 	glRotatef(180-(angle+deltaAngle)*180.0/3.14,0.0,1.0,0.0);
-	glutSolidCone(0.2,0.8f,4,4);
+	glutSolidCone(0.1,0.4f,2,2);
 	glPopMatrix();
 
 	renderScene2();
@@ -255,7 +255,7 @@ void renderScenesw3() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glLoadIdentity();
-	gluLookAt(x-lz*10 , y, z+lx*10,
+	gluLookAt(x-lz*8 , y, z+lx*8,
 		  x ,y ,z ,
 		  0.0f,1.0f,0.0f);
 
@@ -264,7 +264,7 @@ void renderScenesw3() {
 	glColor3f(1.0,0.0,0.0);
 	glTranslatef(x,y,z);
 	glRotatef(180-(angle+deltaAngle)*180.0/3.14,0.0,1.0,0.0);
-	glutSolidCone(0.2,0.8f,4,4);
+	glutSolidCone(0.1,0.4f,4,4);
 	glPopMatrix();
 
 	renderScene2();
