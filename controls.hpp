@@ -6,6 +6,7 @@
 void computeMatricesFromInputs();
 glm::mat4 getViewMatrix();
 glm::mat4 getProjectionMatrix();
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 
 #endif

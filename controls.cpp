@@ -36,13 +36,24 @@ float mouseSpeed = 0.001f;
 double xpos = 1024.0f/2.0f, ypos = 1024.0f/2.0f;
 double xPrev = 1024.0f/2.0f, yPrev = 1024.0f/2.0f;
 
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+        /*Toggle mouse pointer visibility */
+        int mode = glfwGetInputMode(window, GLFW_CURSOR);
+        glfwSetInputMode(window, GLFW_CURSOR, mode ^ 0x01);
+    }
 
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+}
+
+
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
     FoV -= yoffset;
 }
 
-void computeMatricesFromInputs() {
+void computeMatricesFromInputs()
+{
 
     // Get mouse position
     glfwGetCursorPos(window, &xpos, &ypos);

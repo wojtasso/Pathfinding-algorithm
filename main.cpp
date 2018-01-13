@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
         glfwSetCursorPos(window, 1024.0f/2.0f, 768.0f/2.0f);
 
         glfwSetScrollCallback(window, scrollCallback);
+        glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	/* Dark blue background */
 	glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
