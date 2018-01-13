@@ -7,7 +7,6 @@
 #include "shader.hpp"
 #include "controls.hpp"
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -35,7 +34,7 @@ int main(int argc, char **argv) {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Open a window and create its OpenGL context */
-	window = glfwCreateWindow( 1024, 768, "Pathfinding", NULL, NULL);
+	window = glfwCreateWindow(1024, 768, "Pathfinding", NULL, NULL);
 	if (window == NULL) {
 		fprintf( stderr, "Failed to open GLFW window. If you have an "
                         "Intel GPU, they are not 3.3 compatible. Try the 2.1 "
@@ -55,11 +54,13 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	/* Ensure we can capture the escape key being pressed below */
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+        /* Ensure we can capture the escape key being pressed below */
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwPollEvents();
-        glfwSetCursorPos(window, 1024/2, 768/2);
+        glfwSetCursorPos(window, 1024.0f/2.0f, 768.0f/2.0f);
+
+        glfwSetScrollCallback(window, scrollCallback);
 
 	/* Dark blue background */
 	glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
@@ -94,6 +95,14 @@ int main(int argc, char **argv) {
             0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f,
+
+            10.0f, 0.0f, 0.0f,
+            11.0f, 0.0f, 0.0f,
+            10.0f, 0.0f, 0.0f,
+            10.0f, 1.0f, 0.0f,
+            10.0f, 0.0f, 0.0f,
+            10.0f, 0.0f, 1.0f,
+
         };
 
         static const GLfloat g_color_buffer_data[] = {
@@ -103,6 +112,14 @@ int main(int argc, char **argv) {
             0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 1.0f,
+
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+
         };
 
         GLuint axisBuffer;
@@ -139,7 +156,7 @@ int main(int argc, char **argv) {
             glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-            glDrawArrays(GL_LINES, 0, 6);
+            glDrawArrays(GL_LINES, 0, 12);
 
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);

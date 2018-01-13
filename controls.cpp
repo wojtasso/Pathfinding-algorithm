@@ -1,7 +1,7 @@
 // Include GLFW
 #include <stdio.h>
 #include <GLFW/glfw3.h>
-extern GLFWwindow* window; // The "extern" keyword here is to access the variable "window" declared in tutorialXXX.cpp. This is a hack to keep the tutorials simple. Please avoid this.
+extern GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -22,42 +22,37 @@ glm::mat4 getProjectionMatrix(){
 
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3(10, 10, 10);
+glm::vec3 position = glm::vec3(5, 5, 5);
 // Initial horizontal angle : toward -Z
-float horizontalAngle = 3.84f;
+float horizontalAngle = 3.14f;
 // Initial vertical angle : none
-float verticalAngle = 5.8f;
+float verticalAngle = -3.14f/2.0f;
 // Initial Field of View
-float initialFoV = 45.0f;
+float FoV = 60.0f;
 
-float speed = 3.0f; // 3 units / second
-float mouseSpeed = 0.000f;
+float speed = 0.1f; // 3 units / second
+float mouseSpeed = 0.001f;
+
+double xpos = 1024.0f/2.0f, ypos = 1024.0f/2.0f;
+double xPrev = 1024.0f/2.0f, yPrev = 1024.0f/2.0f;
 
 
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    FoV -= yoffset;
+}
 
 void computeMatricesFromInputs() {
 
-    // glfwGetTime is called only once, the first time this function is called
-    static double lastTime = glfwGetTime();
-
-    printf("Horizontal angle %f \nverticalAngle %f \n",
-            horizontalAngle, verticalAngle);
-
-    // Compute time difference between current and last frame
-    double currentTime = glfwGetTime();
-    float deltaTime = float(currentTime - lastTime);
-
     // Get mouse position
-    double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    printf("X: %f Y: %f \n", xpos, ypos);
-
-    // Reset mouse position for next frame
-    glfwSetCursorPos(window, 1024/2, 768/2);
 
     // Compute new orientation
-    horizontalAngle += mouseSpeed * float(1024/2 - xpos );
-    verticalAngle   += mouseSpeed * float( 768/2 - ypos );
+    horizontalAngle += mouseSpeed * float(xPrev - xpos);
+    verticalAngle   += mouseSpeed * float(yPrev - ypos);
+    xPrev = xpos;
+    yPrev = ypos;
+    //printf("H: %f V: %f \n", horizontalAngle, verticalAngle);
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
     glm::vec3 direction(
@@ -78,24 +73,22 @@ void computeMatricesFromInputs() {
 
     // Move forward
     if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS){
-        position += direction * deltaTime * speed;
+        position += direction * speed;
     }
     // Move backward
     if (glfwGetKey( window, GLFW_KEY_DOWN ) == GLFW_PRESS){
-        position -= direction * deltaTime * speed;
+        position -= direction * speed;
     }
     // Strafe right
     if (glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-        position += right * deltaTime * speed;
+        position += right * speed;
     }
     // Strafe left
     if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
-        position -= right * deltaTime * speed;
+        position -= right * speed;
     }
 
-    float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
-
-    // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+    // Projection matrix : Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     ProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
     // Camera matrix
     ViewMatrix       = glm::lookAt(
@@ -103,7 +96,6 @@ void computeMatricesFromInputs() {
             position+direction, // and looks here : at the same position, plus "direction"
             up                  // Head is up (set to 0,-1,0 to look upside-down)
             );
-
-    // For the next frame, the "last time" will be "now"
-    lastTime = currentTime;
+    //printf("Up: %f %f %f \n", up[0], up[1], up[2]);
+    //printf("Look at %f %f %f \n", (position[0]+direction[0]), (position[1]+direction[1]), (position[2]+direction[2]));
 }
