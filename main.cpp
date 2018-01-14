@@ -33,12 +33,12 @@ int main(int argc, char **argv) {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
 	/* Open a window and create its OpenGL context */
-	window = glfwCreateWindow(1024, 768, "Pathfinding", NULL, NULL);
+	window = glfwCreateWindow((mode->width * 2)/3, (mode->height * 2)/3, "Pathfinding", NULL, NULL);
 	if (window == NULL) {
-		fprintf( stderr, "Failed to open GLFW window. If you have an "
-                        "Intel GPU, they are not 3.3 compatible. Try the 2.1 "
-                        "version of the tutorials.\n" );
+		fprintf(stderr, "Failed to open GLFW window.\n");
 		getchar();
 		glfwTerminate();
 		return -1;
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwPollEvents();
-        glfwSetCursorPos(window, 1024.0f/2.0f, 768.0f/2.0f);
+        glfwSetCursorPos(window, (mode->width * 2)/2.0f, (mode->height * 2)/2.0f);
 
         glfwSetScrollCallback(window, scrollCallback);
         glfwSetMouseButtonCallback(window, mouseButtonCallback);

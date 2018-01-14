@@ -41,7 +41,7 @@ void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
         /*Toggle mouse pointer visibility */
         int mode = glfwGetInputMode(window, GLFW_CURSOR);
-        glfwSetInputMode(window, GLFW_CURSOR, mode ^ 0x01);
+        glfwSetInputMode(window, GLFW_CURSOR, mode ^ 0x02);
     }
 
 }
