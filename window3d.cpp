@@ -1,14 +1,17 @@
 // Include GLFW
+#include <iostream>
 #include <stdio.h>
 #include <GLFW/glfw3.h>
 extern GLFWwindow* window;
-
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
 
-#include "controls.hpp"
+#include "window3d.hpp"
+
+using std::cout;
+using std::endl;
 
 glm::mat4 ViewMatrix;
 glm::mat4 ProjectionMatrix;
@@ -30,7 +33,7 @@ float verticalAngle = -3.14f/2.0f;
 // Initial Field of View
 float FoV = 60.0f;
 
-float speed = 0.1f; // 3 units / second
+float speed = 0.1f; // 0.1 units / second
 float mouseSpeed = 0.001f;
 
 double xpos = 1024.0f/2.0f, ypos = 1024.0f/2.0f;
@@ -38,12 +41,13 @@ double xPrev = 1024.0f/2.0f, yPrev = 1024.0f/2.0f;
 
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
+    //TODO: Strange behaviour while switching from DISABLED to NORMAL
+    //glfw 3.3 version will have raw mouse input
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
         /*Toggle mouse pointer visibility */
         int mode = glfwGetInputMode(window, GLFW_CURSOR);
         glfwSetInputMode(window, GLFW_CURSOR, mode ^ 0x02);
     }
-
 }
 
 

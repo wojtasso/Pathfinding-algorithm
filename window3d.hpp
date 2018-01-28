@@ -1,5 +1,5 @@
-#ifndef CONTROLS_HPP
-#define CONTROLS_HPP
+#ifndef WINDOW3D_HPP
+#define WINDOW3D_HPP
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 

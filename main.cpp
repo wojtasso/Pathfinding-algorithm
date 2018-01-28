@@ -5,7 +5,7 @@
 //#include "scene.h"
 //#include "pathfinding.h"
 #include "shader.hpp"
-#include "controls.hpp"
+#include "window3d.hpp"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,6 +25,11 @@ int main(int argc, char **argv) {
 		getchar();
 		return -1;
 	}
+
+        int glfwMajor, glfwMinor, glfwRev;
+        glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRev);
+        cout << "GLFW version: " << glfwMajor << "." << glfwMinor << "."
+            << glfwRev << endl;
         /* Enable Multisample anti-aliasing (MSAA), 4* MSAA */
 	glfwWindowHint(GLFW_SAMPLES, 4);
         /* Set API version to OpenGL 3.3 */
@@ -36,7 +41,8 @@ int main(int argc, char **argv) {
         const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 	/* Open a window and create its OpenGL context */
-	window = glfwCreateWindow((mode->width * 2)/3, (mode->height * 2)/3, "Pathfinding", NULL, NULL);
+	window = glfwCreateWindow((mode->width * 2)/3, (mode->height * 2)/3,
+                "Pathfinding", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to open GLFW window.\n");
 		getchar();
