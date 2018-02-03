@@ -10,6 +10,7 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 void init3DWindow();
 void loop3DWindow();
 void close3DWindow();
+void get3DPos(double x, double y);
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 
 #endif
