@@ -1,6 +1,9 @@
 // Include GLFW
 #include <iostream>
 #include <stdio.h>
+#include <vector>
+#include <algorithm>
+#include <iterator>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -15,6 +18,7 @@
 using namespace glm;
 using std::cout;
 using std::endl;
+using std::vector;
 
 GLFWwindow* window;
 
@@ -24,6 +28,7 @@ glm::mat4 ProjectionMatrix;
 GLuint programID;
 GLuint MatrixID;
 GLuint axisBuffer;
+
 GLuint colorBuffer;
 GLuint axisBufferID;
 
@@ -53,13 +58,13 @@ static const GLfloat g_vertex_buffer_data[] = {
     0.0f, 0.0f, 1.0f,
 
     5.0f, 5.0f, 5.0f,
-    6.0f, 0.0f, 5.0f,
+    6.0f, 5.0f, 5.0f,
     5.0f, 5.0f, 5.0f,
     5.0f, 6.0f, 5.0f,
     5.0f, 5.0f, 5.0f,
-    5.0f, 5.0f, 6.0f,
-
+    5.0f, 5.0f, 6.0f
 };
+
 
 static const GLfloat g_color_buffer_data[] = {
     1.0f, 0.0f, 0.0f,
@@ -74,8 +79,7 @@ static const GLfloat g_color_buffer_data[] = {
     0.0f, 1.0f, 0.0f,
     0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f,
-
+    0.0f, 0.0f, 1.0f
 };
 
 
@@ -130,7 +134,7 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
     FoV -= yoffset;
 }
 
-void init3DWindow()
+void init3DWindow(vector<cv::Vec3f> &vertex)
 {
     /* Initialise GLFW */
     if (!glfwInit()) {
@@ -188,26 +192,37 @@ void init3DWindow()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    glGenVertexArrays(1, &axisBufferID);
-    glBindVertexArray(axisBufferID);
-
-
     glGenBuffers(1, &axisBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, axisBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data),
-            g_vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data) + vertex.size()*4,
+            0, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_vertex_buffer_data), g_vertex_buffer_data);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), vertex.size()*4, (void*)&vertex[0][0]);
 
     glGenBuffers(1, &colorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data),
-            g_color_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data) + vertex.size()*4,
+            0, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_color_buffer_data), g_color_buffer_data);
+
+    // Fill points with green color
+    for (unsigned int i = 0; i < vertex.size(); i++) {
+        GLfloat green[] = {0.0f, 1.0f, 0.0f};
+        glBufferSubData(GL_ARRAY_BUFFER,
+                sizeof(g_color_buffer_data) + i*sizeof(green),
+                sizeof(green),
+                (void*)&grenn[0]);
+    }
+
+    glGenVertexArrays(1, &axisBufferID);
+    glBindVertexArray(axisBufferID);
 
     programID = LoadShaders("SimpleTransform.vertexshader",
             "ColorFragmentShader.fragmentshader");
     MatrixID = glGetUniformLocation(programID, "MVP");
 }
 
-void loop3DWindow()
+void loop3DWindow(unsigned int size)
 {
     do{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -224,13 +239,13 @@ void loop3DWindow()
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, axisBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
         /* Color */
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_LINES, 0, 12);
+        glDrawArrays(GL_POINTS, 12, size);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);

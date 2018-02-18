@@ -11,7 +11,7 @@ CFLAGS =  -Wall -c -I.
 CPPFLAGS = -Wall $(CPPINCLUDE_DIRS)
 LFLAGS = -Wall
 
-CPPSOURCE =$(wildcard main.cpp shader.cpp window3d.cpp)
+CPPSOURCE =$(wildcard main.cpp shader.cpp window3d.cpp pathfinding.cpp)
 CPPOUTFILE = path_finding
 CPPOBJS = $(CPPSOURCE:.cpp=.o)
 

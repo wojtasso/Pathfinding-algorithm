@@ -3,6 +3,8 @@
 using namespace std;
 using namespace cv;
 
+vector<Vec3d> point_cloud;
+vector<node> lista;
 
 node::node()
 {
