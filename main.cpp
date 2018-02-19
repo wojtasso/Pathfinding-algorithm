@@ -21,8 +21,6 @@ Vec3d round(Vec3d input)
     return output;
 }
 
-Vec3d temp1, temp2;
-
 int main(int argc, char **argv) {
 
 /*      int menu=0;
@@ -32,6 +30,7 @@ int main(int argc, char **argv) {
         }*/
 
         vector<Vec3f> points;
+
         cout << "Odczytywanie punktow ..." << endl;
         vector<Mat> points3d_estimated;
         FileStorage fs("myfile.txt",FileStorage::READ);
@@ -47,17 +46,13 @@ int main(int argc, char **argv) {
             points[i][2]= points[i][2];
         }
 
-        init3DWindow(points);
-        loop3DWindow(points.size());
-        close3DWindow();
-        return 0;
         //Create Grid
         vector<double> X_axis, Y_axis, Z_axis;
 
-        for (unsigned int i =0; i< point_cloud.size(); i++) {
-            X_axis.push_back(point_cloud[i][0]);
-            Y_axis.push_back(point_cloud[i][1]);
-            Z_axis.push_back(point_cloud[i][2]);
+        for (unsigned int i =0; i < points.size(); i++) {
+            X_axis.push_back(points[i][0]);
+            Y_axis.push_back(points[i][1]);
+            Z_axis.push_back(points[i][2]);
         }
 
         vector<double>::iterator
@@ -79,25 +74,24 @@ int main(int argc, char **argv) {
                 Y_axis[distance(Y_axis.begin(), result_Y)],
                 Z_axis[distance(Z_axis.begin(), result_Z)]);
 
-            Grid obj(Grid_begin, Grid_end);
-            cout << "Find Path ..." << endl;
-            cout << "Grid_begin " << Grid_begin << endl;
+        Grid obj(Grid_begin, Grid_end, points);
+        cout << "Find Path ..." << endl;
+        cout << "Grid_begin " << Grid_begin << endl;
 
-            Vec3d firstPos(0.090, 1.780, 0.810);
-            node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
-            Vec3d secondPos(-1.014, 1.479, 1.639);
-            node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
-            cout << "end " <<  secondPos << endl;
+        Vec3f firstPos(0.090, 1.780, 0.810);
+        node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
+        Vec3f secondPos(-1.014, 1.479, 1.639);
+        node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
+        cout << "end " <<  secondPos << endl;
 
-            cout << obj.gridSizeX << " " << obj.gridSizeY << " " << obj.gridSizeZ << endl;
-            cout << obj.GetX(secondPos) << " " << obj.GetY(secondPos) << " " << obj.GetZ(secondPos) << endl;
+        cout << obj.gridSizeX << " " << obj.gridSizeY << " " << obj.gridSizeZ << endl;
+        cout << obj.GetX(secondPos) << " " << obj.GetY(secondPos) << " " << obj.GetZ(secondPos) << endl;
 
-            vector <node> tmpe = FindPath(firstPos, secondPos, obj);
-            tmpe.insert(tmpe.begin(), firstNode);
-            lista = tmpe;
+        vector<node> path = FindPath(firstPos, secondPos, obj);
+        path.insert(path.begin(), firstNode);
 
-            temp1= firstPos;
-            temp2 = secondPos;
-
-	return 0;
+        init3DWindow(points, path);
+        loop3DWindow(points.size(), path.size());
+        close3DWindow();
+        return 0;
 }

@@ -14,6 +14,7 @@
 
 #include "window3d.hpp"
 #include "shader.hpp"
+#include "pathfinding.h"
 
 using namespace glm;
 using std::cout;
@@ -134,7 +135,7 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
     FoV -= yoffset;
 }
 
-void init3DWindow(vector<cv::Vec3f> &vertex)
+void init3DWindow(vector<cv::Vec3f> &vertex, vector<node> &path)
 {
     /* Initialise GLFW */
     if (!glfwInit()) {
@@ -194,24 +195,59 @@ void init3DWindow(vector<cv::Vec3f> &vertex)
 
     glGenBuffers(1, &axisBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, axisBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data) + vertex.size()*4,
-            0, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_vertex_buffer_data), g_vertex_buffer_data);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), vertex.size()*4, (void*)&vertex[0][0]);
+    glBufferData(GL_ARRAY_BUFFER,
+            sizeof(g_vertex_buffer_data) + path.size()*sizeof(cv::Vec3f) + vertex.size()*sizeof(cv::Vec3f),
+            0,
+            GL_STATIC_DRAW);
+
+    glBufferSubData(GL_ARRAY_BUFFER,
+            0,
+            sizeof(g_vertex_buffer_data),
+            g_vertex_buffer_data);
+
+    for (unsigned int i = 0; i < path.size(); i++) {
+        glBufferSubData(GL_ARRAY_BUFFER,
+                sizeof(g_vertex_buffer_data) + i*sizeof(cv::Vec3f),
+                sizeof(cv::Vec3f),
+                &path[i].worldPosition);
+    }
+
+    glBufferSubData(GL_ARRAY_BUFFER,
+            sizeof(g_vertex_buffer_data) + path.size()*sizeof(cv::Vec3f),
+            vertex.size() * sizeof(cv::Vec3f),
+            (void*)&vertex[0][0]);
+
+    //White color for found path
+    GLfloat whitePath[3] = {
+        1.0f, 1.0f, 1.0f
+    };
+    cout << sizeof(whitePath) << endl;
 
     glGenBuffers(1, &colorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data) + vertex.size()*4,
-            0, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_color_buffer_data), g_color_buffer_data);
+    glBufferData(GL_ARRAY_BUFFER,
+            sizeof(g_color_buffer_data) + path.size()*sizeof(whitePath) + vertex.size()*sizeof(cv::Vec3f),
+            0,
+            GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER,
+            0,
+            sizeof(g_color_buffer_data),
+            g_color_buffer_data);
+
+    for (unsigned int i = 0; i < path.size(); i++) {
+        glBufferSubData(GL_ARRAY_BUFFER,
+                sizeof(g_color_buffer_data) + i*sizeof(whitePath),
+                sizeof(whitePath),
+                (void*)&whitePath[0]);
+    }
 
     // Fill points with green color
     for (unsigned int i = 0; i < vertex.size(); i++) {
         GLfloat green[] = {0.0f, 1.0f, 0.0f};
         glBufferSubData(GL_ARRAY_BUFFER,
-                sizeof(g_color_buffer_data) + i*sizeof(green),
+                sizeof(g_color_buffer_data) + path.size()*sizeof(whitePath) + i*sizeof(green),
                 sizeof(green),
-                (void*)&grenn[0]);
+                (void*)&green[0]);
     }
 
     glGenVertexArrays(1, &axisBufferID);
@@ -222,7 +258,7 @@ void init3DWindow(vector<cv::Vec3f> &vertex)
     MatrixID = glGetUniformLocation(programID, "MVP");
 }
 
-void loop3DWindow(unsigned int size)
+void loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
 {
     do{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -245,7 +281,8 @@ void loop3DWindow(unsigned int size)
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glDrawArrays(GL_LINES, 0, 12);
-        glDrawArrays(GL_POINTS, 12, size);
+        glDrawArrays(GL_LINE_STRIP, 12, pathSize);
+        glDrawArrays(GL_POINTS, 12 + pathSize, pointsSize);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
