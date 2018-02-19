@@ -10,12 +10,12 @@ node::node()
 
 node::node(bool _walkable, Vec3f _worldPosition, int _gridX, int _gridY, int _gridZ )
 {
-        walkable = _walkable;
-        worldPosition = _worldPosition;
-        gridX = _gridX;
-        gridY = _gridY;
-        gridZ = _gridZ;
-        parent = NULL;
+    walkable = _walkable;
+    worldPosition = _worldPosition;
+    gridX = _gridX;
+    gridY = _gridY;
+    gridZ = _gridZ;
+    parent = NULL;
 }
 
 int node::fCost()
@@ -30,7 +30,7 @@ bool node::operator==(const node& n1)
 
 bool node::operator!=(const node& n1)
 {
-        return !(*this==n1);
+    return !(*this==n1);
 }
 
 Grid::Grid(Vec3f _begin, Vec3f _end, vector<Vec3f> &point_cloud)
@@ -131,9 +131,9 @@ unsigned int Grid::GetY(Vec3f worldPosition)
 
 unsigned int Grid::GetZ(Vec3f worldPosition)
 {
-        double percentZ = (worldPosition[2] - begin[2]) / gridWoldSize[2];
-        int z = rint(gridSizeZ * percentZ);
-        return z;
+    double percentZ = (worldPosition[2] - begin[2]) / gridWoldSize[2];
+    int z = rint(gridSizeZ * percentZ);
+    return z;
 }
 
 Vec3f Grid::WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z)
