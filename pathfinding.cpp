@@ -3,15 +3,12 @@
 using namespace std;
 using namespace cv;
 
-vector<Vec3d> point_cloud;
-vector<node> lista;
-
 node::node()
 {
     parent = NULL;
 }
 
-node::node(bool _walkable, Vec3d _worldPosition, int _gridX, int _gridY, int _gridZ )
+node::node(bool _walkable, Vec3f _worldPosition, int _gridX, int _gridY, int _gridZ )
 {
         walkable = _walkable;
         worldPosition = _worldPosition;
@@ -36,9 +33,9 @@ bool node::operator!=(const node& n1)
         return !(*this==n1);
 }
 
-Grid::Grid(Vec3d _begin, Vec3d _end)
+Grid::Grid(Vec3f _begin, Vec3f _end, vector<Vec3f> &point_cloud)
 {
-    Vec3d increase(nodeSize, nodeSize, nodeSize);
+    Vec3f increase(nodeSize, nodeSize, nodeSize);
     begin = _begin;
     end = _end + increase;
     gridWoldSize[0] = abs(end[0] - begin[0]);
@@ -83,7 +80,7 @@ Grid::Grid(Vec3d _begin, Vec3d _end)
         {
             for (int  z= -8; z < 8; z++ )
             {
-                Vec3d tmp(0.029 + 0.001*x,1.718 + 0.001*y, 0.870 + z*0.001 );
+                Vec3f tmp(0.029 + 0.001*x,1.718 + 0.001*y, 0.870 + z*0.001 );
                 grid[GetX(tmp)][GetY(tmp)][GetZ(tmp)] = false;
             }
         }
@@ -118,35 +115,35 @@ vector<node> Grid::GetNeighbours(node N)
     return neighbours;
 }
 
-unsigned int Grid::GetX(Vec3d worldPosition)
+unsigned int Grid::GetX(Vec3f worldPosition)
 {
     double percentX = (worldPosition[0] - begin[0]) / gridWoldSize[0];
     int x = rint(gridSizeX * percentX);
     return x;
 }
 
-unsigned int Grid::GetY(Vec3d worldPosition)
+unsigned int Grid::GetY(Vec3f worldPosition)
 {
     double percentY = (worldPosition[1] - begin[1]) / gridWoldSize[1];
     int y = rint(gridSizeY * percentY);
     return y;
 }
 
-unsigned int Grid::GetZ(Vec3d worldPosition)
+unsigned int Grid::GetZ(Vec3f worldPosition)
 {
         double percentZ = (worldPosition[2] - begin[2]) / gridWoldSize[2];
         int z = rint(gridSizeZ * percentZ);
         return z;
 }
 
-Vec3d Grid::WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z)
+Vec3f Grid::WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z)
 {
-    Vec3d worldPosition(begin[0] + x*nodeSize, begin[1] + y*nodeSize, begin[2] + z*nodeSize);
+    Vec3f worldPosition(begin[0] + x*nodeSize, begin[1] + y*nodeSize, begin[2] + z*nodeSize);
     return worldPosition;
 }
 
 
-vector<node> FindPath(Vec3d startPos, Vec3d targetPos, Grid &grid)
+vector<node> FindPath(Vec3f startPos, Vec3f targetPos, Grid &grid)
 {
     node startNode(true, startPos, grid.GetX(startPos), grid.GetY(startPos), grid.GetZ(startPos));
     node targetNode(true, targetPos, grid.GetX(targetPos), grid.GetY(targetPos), grid.GetZ(targetPos));
@@ -222,9 +219,6 @@ vector<node> FindPath(Vec3d startPos, Vec3d targetPos, Grid &grid)
     cout << "Pusto" << endl;
     return openSet;
 }
-
-
-
 
 int GetDistance(node n1, node n2)
 {

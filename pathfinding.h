@@ -16,7 +16,7 @@ class node
 {
 public:
     bool walkable;
-    Vec3d worldPosition;
+    Vec3f worldPosition;
     int gridX;
     int gridY;
     int gridZ;
@@ -26,7 +26,7 @@ public:
     node *parent;
 
     node();
-    node(bool _walkable, Vec3d _worldPosition, int _gridX, int _gridY, int _gridZ );
+    node(bool _walkable, Vec3f _worldPosition, int _gridX, int _gridY, int _gridZ );
 
     int fCost();
     bool operator==(const node& n1);
@@ -38,23 +38,21 @@ class Grid
 public:
     int gridSizeX, gridSizeY, gridSizeZ;
     static const double nodeSize = 0.001;
-    Vec3d begin, end, gridWoldSize;
+    Vec3f begin, end, gridWoldSize;
     vector<vector<vector<bool> > > grid;
-    Grid(Vec3d _begin, Vec3d _end);
+    Grid(Vec3f _begin, Vec3f _end, vector<Vec3f> &point_cloud);
     vector<node> GetNeighbours(node N);
-    unsigned int GetX(Vec3d worldPosition);
-    unsigned int GetY(Vec3d worldPosition);
-    unsigned int GetZ(Vec3d worldPosition);
-    Vec3d WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z);
+    unsigned int GetX(Vec3f worldPosition);
+    unsigned int GetY(Vec3f worldPosition);
+    unsigned int GetZ(Vec3f worldPosition);
+    Vec3f WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z);
 };
 
 
 
 vector<node> RetracePath(node startNode, node endNode);
-vector<node> FindPath(Vec3d startPos, Vec3d targetPos, Grid &grid);
+vector<node> FindPath(Vec3f startPos, Vec3f targetPos, Grid &grid);
 int GetDistance(node n1, node n2);
-extern vector<Vec3d> point_cloud;
-extern vector<node> lista;
 
 
 
