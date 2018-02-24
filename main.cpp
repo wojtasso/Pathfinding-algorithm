@@ -2,15 +2,17 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
-#include "pathfinding.h"
+#include "Node.hpp"
+#include "Grid.hpp"
 #include "window3d.hpp"
 
 using namespace std;
-using namespace cv;
+using cv::Vec3f;
+using cv::Vec3d;
+using cv::Mat;
 
 Vec3d round(Vec3d input)
 {
-    //Vec3i tmp = rint(input * 1000);
     double vec1 = trunc(input[0] * 1000.0);
     double vec2 = trunc(input[1] * 1000.0);
     double vec3 = trunc(input[2] * 1000.0);
@@ -23,17 +25,10 @@ Vec3d round(Vec3d input)
 
 int main(int argc, char **argv) {
 
-    /*      int menu=0;
-            while(!(menu == 1 || menu ==2)) {
-            cout << "Wybierz scenariusz 1 lub 2 " << endl;
-            cin >> menu;
-            }*/
-
     vector<Vec3f> points;
-
     cout << "Odczytywanie punktow ..." << endl;
     vector<Mat> points3d_estimated;
-    FileStorage fs("myfile.txt",FileStorage::READ);
+    cv::FileStorage fs("myfile.txt", cv::FileStorage::READ);
     fs["points3d"] >> points3d_estimated;
 
     for (unsigned int i = 0; i < points3d_estimated.size(); i++)
@@ -55,10 +50,9 @@ int main(int argc, char **argv) {
         Z_axis.push_back(points[i][2]);
     }
 
-    vector<double>::iterator
-        result_X = min_element(X_axis.begin(), X_axis.end()),
-                 result_Y = min_element(Y_axis.begin(), Y_axis.end()),
-                 result_Z = min_element(Z_axis.begin(), Z_axis.end());
+    vector<double>::iterator result_X = min_element(X_axis.begin(), X_axis.end()),
+        result_Y = min_element(Y_axis.begin(), Y_axis.end()),
+        result_Z = min_element(Z_axis.begin(), Z_axis.end());
 
     Vec3d Grid_begin(
             X_axis[distance(X_axis.begin(), result_X)],
@@ -79,15 +73,15 @@ int main(int argc, char **argv) {
     cout << "Grid_begin " << Grid_begin << endl;
 
     Vec3f firstPos(0.090, 0.280, 0.810);
-    node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
+    Node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
     Vec3f secondPos(-1.014, -0.021, 1.639);
-    node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
+    Node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
     cout << "end " <<  secondPos << endl;
 
     cout << obj.gridSizeX << " " << obj.gridSizeY << " " << obj.gridSizeZ << endl;
     cout << obj.GetX(secondPos) << " " << obj.GetY(secondPos) << " " << obj.GetZ(secondPos) << endl;
 
-    vector<node> path = FindPath(firstPos, secondPos, obj);
+    vector<Node> path = obj.FindPath(firstPos, secondPos);
     path.insert(path.begin(), firstNode);
 
     init3DWindow(points, path);

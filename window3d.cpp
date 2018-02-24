@@ -14,7 +14,7 @@
 
 #include "window3d.hpp"
 #include "shader.hpp"
-#include "pathfinding.h"
+#include "Node.hpp"
 
 using namespace glm;
 using std::cout;
@@ -121,7 +121,7 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
     FoV -= yoffset;
 }
 
-void init3DWindow(vector<cv::Vec3f> &vertex, vector<node> &path)
+void init3DWindow(vector<cv::Vec3f> &vertex, vector<Node> &path)
 {
     /* Initialise GLFW */
     if (!glfwInit()) {
@@ -204,10 +204,7 @@ void init3DWindow(vector<cv::Vec3f> &vertex, vector<node> &path)
             (void*)&vertex[0][0]);
 
     //White color for found path
-    GLfloat whitePath[3] = {
-        1.0f, 1.0f, 1.0f
-    };
-    cout << sizeof(whitePath) << endl;
+    GLfloat whitePath[3] = { 1.0f, 1.0f, 1.0f };
 
     glGenBuffers(1, &colorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
@@ -327,7 +324,6 @@ void computeMatricesFromInputs()
         xPrev = xpos;
         yPrev = ypos;
     }
-    //printf("H: %f V: %f \n", horizontalAngle, verticalAngle);
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
     glm::vec3 direction(
@@ -366,11 +362,8 @@ void computeMatricesFromInputs()
     // Projection matrix : Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     ProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
     // Camera matrix
-    ViewMatrix       = glm::lookAt(
-            position,           // Camera is here
-            position+direction, // and looks here : at the same position, plus "direction"
-            up                  // Head is up (set to 0,-1,0 to look upside-down)
-            );
-    //printf("Up: %f %f %f \n", up[0], up[1], up[2]);
-    //printf("Look at %f %f %f \n", (position[0]+direction[0]), (position[1]+direction[1]), (position[2]+direction[2]));
+    ViewMatrix = glm::lookAt(
+            position,
+            position+direction,
+            up);
 }
