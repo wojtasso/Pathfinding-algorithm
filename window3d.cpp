@@ -57,13 +57,6 @@ static const GLfloat g_vertex_buffer_data[] = {
     0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
-
-    5.0f, 5.0f, 5.0f,
-    6.0f, 5.0f, 5.0f,
-    5.0f, 5.0f, 5.0f,
-    5.0f, 6.0f, 5.0f,
-    5.0f, 5.0f, 5.0f,
-    5.0f, 5.0f, 6.0f
 };
 
 
@@ -74,13 +67,6 @@ static const GLfloat g_color_buffer_data[] = {
     0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
-
-    1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f
 };
 
 
@@ -188,7 +174,7 @@ void init3DWindow(vector<cv::Vec3f> &vertex, vector<node> &path)
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
     /* Dark blue background */
-    glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -280,9 +266,9 @@ void loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        glDrawArrays(GL_LINES, 0, 12);
-        glDrawArrays(GL_LINE_STRIP, 12, pathSize);
-        glDrawArrays(GL_POINTS, 12 + pathSize, pointsSize);
+        glDrawArrays(GL_LINES, 0, 6);
+        glDrawArrays(GL_LINE_STRIP, 6, pathSize);
+        glDrawArrays(GL_POINTS, 6 + pathSize, pointsSize);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
