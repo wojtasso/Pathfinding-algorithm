@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     //Nowy uklad
     for (unsigned int i = 0; i < points.size(); i++) {
         points[i][0]= points[i][0]*-1;
-        points[i][1]= points[i][1]*-1 + 1.5;
+        points[i][1]= points[i][1]*-1;
         points[i][2]= points[i][2];
     }
 
@@ -78,9 +78,9 @@ int main(int argc, char **argv) {
     cout << "Find Path ..." << endl;
     cout << "Grid_begin " << Grid_begin << endl;
 
-    Vec3f firstPos(0.090, 1.780, 0.810);
+    Vec3f firstPos(0.090, 0.280, 0.810);
     node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
-    Vec3f secondPos(-1.014, 1.479, 1.639);
+    Vec3f secondPos(-1.014, -0.021, 1.639);
     node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
     cout << "end " <<  secondPos << endl;
 

@@ -35,6 +35,7 @@ bool node::operator!=(const node& n1)
 
 Grid::Grid(Vec3f _begin, Vec3f _end, vector<Vec3f> &point_cloud)
 {
+    cout << "Tworzenie siatki ..." << endl;
     Vec3f increase(nodeSize, nodeSize, nodeSize);
     begin = _begin;
     end = _end + increase;
@@ -50,40 +51,13 @@ Grid::Grid(Vec3f _begin, Vec3f _end, vector<Vec3f> &point_cloud)
     {
         grid[i].resize(gridSizeY);
         for ( int j = 0; j < gridSizeY; j++)
-            grid[i][j].resize(gridSizeZ);
-    }
-
-    cout << "Tworzenie siatki ..." << endl;
-
-    for ( int i = 0; i < gridSizeX; i++)
-    {
-        for ( int j = 0; j < gridSizeY; j++)
-        {
-            for ( int k = 0; k < gridSizeZ; k++)
-            {
-                //bool walkable = (find(WorldPointFromNode(i, j, k)) == 65535) ? false : true;
-                grid[i][j][k] = true;
-            }
-        }
+            grid[i][j].resize(gridSizeZ, true); //All nodes walkable
     }
 
     cout << "Uzupelnanie ..." << endl;
     for (unsigned int i = 0; i < point_cloud.size(); i++ )
     {
         grid[GetX(point_cloud[i])][GetY(point_cloud[i])][GetZ(point_cloud[i])] = false;
-    }
-
-    cout << "Gotowe" << endl;
-    for (int x = -8; x < 8; x++ )
-    {
-        for (int y = -8; y < 8; y++ )
-        {
-            for (int  z= -8; z < 8; z++ )
-            {
-                Vec3f tmp(0.029 + 0.001*x,1.718 + 0.001*y, 0.870 + z*0.001 );
-                grid[GetX(tmp)][GetY(tmp)][GetZ(tmp)] = false;
-            }
-        }
     }
 }
 
