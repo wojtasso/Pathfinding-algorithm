@@ -1,4 +1,3 @@
-// Include GLFW
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -7,7 +6,6 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-// Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext.hpp>
@@ -21,35 +19,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-GLFWwindow* window;
-
-glm::mat4 ViewMatrix;
-glm::mat4 ProjectionMatrix;
-
-GLuint programID;
-GLuint MatrixID;
-GLuint axisBuffer;
-
-GLuint colorBuffer;
-GLuint axisBufferID;
-
-bool dragFlag = false;
-
-// Initial position : on +Z
-glm::vec3 position = glm::vec3(5, 5, 5);
-// Initial horizontal angle : toward -Z
-float horizontalAngle = 3.14f;
-// Initial vertical angle : none
-float verticalAngle = -3.14f/2.0f;
-// Initial Field of View
-float FoV = 60.0f;
-
-float speed = 0.1f; // 0.1 units / second
-float mouseSpeed = 0.001f;
-
-double xpos = 1024.0f/2.0f, ypos = 1024.0f/2.0f;
-double xPrev = 1024.0f/2.0f, yPrev = 1024.0f/2.0f;
-
 static const GLfloat g_vertex_buffer_data[] = {
     0.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
@@ -58,7 +27,6 @@ static const GLfloat g_vertex_buffer_data[] = {
     0.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
 };
-
 
 static const GLfloat g_color_buffer_data[] = {
     1.0f, 0.0f, 0.0f,
@@ -69,59 +37,7 @@ static const GLfloat g_color_buffer_data[] = {
     0.0f, 0.0f, 1.0f,
 };
 
-
-glm::mat4 getViewMatrix()
-{
-    return ViewMatrix;
-}
-
-glm::mat4 getProjectionMatrix()
-{
-    return ProjectionMatrix;
-}
-
-void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        //Calculate mouse ray
-        double x, y;
-        glfwGetCursorPos(window, &x, &y);
-        int w, h;
-        glfwGetWindowSize(window, &w, &h);
-
-        double norm_x = (2.0f*x) / w - 1;
-        double norm_y = (2.0f*y) / h - 1;
-        norm_y =  -1.0f * norm_y;
-        glm::mat4 inv = glm::inverse(ProjectionMatrix);
-        glm::vec4 clipCoords(norm_x, norm_y, -1.0f, 1.0f);
-        glm::vec4 eyeCords = (inv * clipCoords);
-        eyeCords[2] = -1.0f;
-        eyeCords[3] = 0.0f;
-        glm::mat4 invertedView = glm::inverse(ViewMatrix);
-        glm::vec4 ray = invertedView * eyeCords;
-        glm::vec3 mouseRay(ray[0], ray[1], ray[2]);
-        mouseRay = glm::normalize(mouseRay);
-
-        cout << "Ray: " << mouseRay[0] << " " << mouseRay[1] << " " << mouseRay[2] << endl;
-        //Calculate 3d coordinates
-        get3DPos(x, y);
-    }
-
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        xPrev = xpos;
-        yPrev = ypos;
-        dragFlag = true;
-    } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-        dragFlag = false;
-    }
-}
-
-void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
-{
-    FoV -= yoffset;
-}
-
-void init3DWindow(vector<cv::Vec3f> &vertex, vector<Node> &path)
+window3d::window3d(vector<cv::Vec3f> &vertex, vector<Node> &path)
 {
     /* Initialise GLFW */
     if (!glfwInit()) {
@@ -170,8 +86,17 @@ void init3DWindow(vector<cv::Vec3f> &vertex, vector<Node> &path)
     glfwPollEvents();
     glfwSetCursorPos(window, (mode->width * 2)/2.0f, (mode->height * 2)/2.0f);
 
-    glfwSetScrollCallback(window, scrollCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
+    glfwSetScrollCallback(window,
+            [] (GLFWwindow* _window, double xoffset, double yoffset) {
+            auto thiz = reinterpret_cast<window3d*>(glfwGetWindowUserPointer(_window));
+            thiz->scrollCallback(xoffset, yoffset);
+            });
+    glfwSetMouseButtonCallback(window,
+            [] (GLFWwindow* _window, int button, int action, int mode) {
+            auto thiz = reinterpret_cast<window3d*>(glfwGetWindowUserPointer(_window));
+            thiz->mouseButtonCallback(_window, button, action, mode);
+            });
 
     /* Dark blue background */
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -241,7 +166,60 @@ void init3DWindow(vector<cv::Vec3f> &vertex, vector<Node> &path)
     MatrixID = glGetUniformLocation(programID, "MVP");
 }
 
-void loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
+window3d::~window3d()
+{
+    // Cleanup VBO
+    glDeleteBuffers(1, &axisBuffer);
+    glDeleteBuffers(1, &colorBuffer);
+    glDeleteVertexArrays(1, &axisBufferID);
+    glDeleteProgram(programID);
+
+    /* Close OpenGL window and terminate GLFW */
+    glfwTerminate();
+}
+
+void window3d::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        //Calculate mouse ray
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+
+        double norm_x = (2.0f*x) / w - 1;
+        double norm_y = (2.0f*y) / h - 1;
+        norm_y =  -1.0f * norm_y;
+        glm::mat4 inv = glm::inverse(ProjectionMatrix);
+        glm::vec4 clipCoords(norm_x, norm_y, -1.0f, 1.0f);
+        glm::vec4 eyeCords = (inv * clipCoords);
+        eyeCords[2] = -1.0f;
+        eyeCords[3] = 0.0f;
+        glm::mat4 invertedView = glm::inverse(ViewMatrix);
+        glm::vec4 ray = invertedView * eyeCords;
+        glm::vec3 mouseRay(ray[0], ray[1], ray[2]);
+        mouseRay = glm::normalize(mouseRay);
+
+        cout << "Ray: " << mouseRay[0] << " " << mouseRay[1] << " " << mouseRay[2] << endl;
+        //Calculate 3d coordinates
+        get3DPos(x, y);
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        xPrev = xpos;
+        yPrev = ypos;
+        dragFlag = true;
+    } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        dragFlag = false;
+    }
+}
+
+void window3d::scrollCallback(double xoffset, double yoffset)
+{
+    FoV -= yoffset;
+}
+
+void window3d::loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
 {
     do{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -249,8 +227,6 @@ void loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
         glUseProgram(programID);
 
         computeMatricesFromInputs();
-        ProjectionMatrix = getProjectionMatrix();
-        ViewMatrix = getViewMatrix();
         glm::mat4 MVP = ProjectionMatrix * ViewMatrix;
 
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
@@ -279,19 +255,7 @@ void loop3DWindow(unsigned int pointsSize, unsigned int pathSize)
             glfwWindowShouldClose(window) == 0 );
 }
 
-void close3DWindow()
-{
-    // Cleanup VBO
-    glDeleteBuffers(1, &axisBuffer);
-    glDeleteBuffers(1, &colorBuffer);
-    glDeleteVertexArrays(1, &axisBufferID);
-    glDeleteProgram(programID);
-
-    /* Close OpenGL window and terminate GLFW */
-    glfwTerminate();
-}
-
-void get3DPos(double x, double y)
+void window3d::get3DPos(double x, double y)
 {
     GLint viewport[4];
     GLfloat winX, winY, winZ;
@@ -310,9 +274,7 @@ void get3DPos(double x, double y)
     //return Vec3d(posX, posY, posZ);
 }
 
-
-
-void computeMatricesFromInputs()
+void window3d::computeMatricesFromInputs()
 {
     // Get mouse position
     glfwGetCursorPos(window, &xpos, &ypos);

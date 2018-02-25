@@ -84,8 +84,7 @@ int main(int argc, char **argv) {
     vector<Node> path = obj.FindPath(firstPos, secondPos);
     path.insert(path.begin(), firstNode);
 
-    init3DWindow(points, path);
-    loop3DWindow(points.size(), path.size());
-    close3DWindow();
+    window3d win(points, path);
+    win.loop3DWindow(points.size(), path.size());
     return 0;
 }

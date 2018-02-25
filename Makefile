@@ -3,9 +3,7 @@ CPPLIBS = -L/usr/local/lib/opencv -lopencv_core -lopencv_flann -lopencv_video
 LIBS =
 
 CPP = g++ -std=c++11
-CFLAGS =  -Wall -c -I.
-CPPFLAGS = -Wall $(CPPINCLUDE_DIRS)
-LFLAGS = -Wall
+CPPFLAGS = -std=c++11 -Wall $(CPPINCLUDE_DIRS)
 
 CPPSOURCE =$(wildcard main.cpp shader.cpp window3d.cpp Grid.cpp Node.cpp)
 CPPOUTFILE = path_finding

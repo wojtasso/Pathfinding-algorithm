@@ -19,7 +19,7 @@ class Grid
         cv::Vec3f begin, end, gridWoldSize;
         cv::Vec3f WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z);
         std::vector<Node> GetNeighbours(Node N);
-        static const double nodeSize = 0.001;
+        const double nodeSize = 0.001;
         int GetDistance(Node n1, Node n2);
         std::vector<Node> RetracePath(Node startNode, Node endNode);
 };
