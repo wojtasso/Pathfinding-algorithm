@@ -7,21 +7,23 @@
 class Grid
 {
     public:
-        int gridSizeX, gridSizeY, gridSizeZ;
         Grid(cv::Vec3f _begin, cv::Vec3f _end, std::vector<cv::Vec3f> &point_cloud);
-        unsigned int GetX(cv::Vec3f worldPosition);
-        unsigned int GetY(cv::Vec3f worldPosition);
-        unsigned int GetZ(cv::Vec3f worldPosition);
-        std::vector<Node> FindPath(cv::Vec3f startPos, cv::Vec3f targetPos);
-
-        std::vector<std::vector<std::vector<bool> > > grid;
+        unsigned int getX(cv::Vec3f worldPosition);
+        unsigned int getY(cv::Vec3f worldPosition);
+        unsigned int getZ(cv::Vec3f worldPosition);
+        std::vector<Node> findPath(cv::Vec3f startPos, cv::Vec3f targetPos);
     private:
+        const double nodeSize = 0.001f;
         cv::Vec3f begin, end, gridWoldSize;
-        cv::Vec3f WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z);
-        std::vector<Node> GetNeighbours(Node N);
-        const double nodeSize = 0.001;
-        int GetDistance(Node n1, Node n2);
-        std::vector<Node> RetracePath(Node startNode, Node endNode);
+        int gridSizeX, gridSizeY, gridSizeZ;
+        std::vector<std::vector<std::vector<bool> > > grid;
+        cv::Vec3f worldPointFromNode(unsigned int x, unsigned int y, unsigned int z);
+        std::vector<Node> getNeighbours(Node N);
+        int getDistanceDiagonal(Node n1, Node n2);
+        int getDistanceManhattan(Node n1, Node n2);
+        int getDistanceChebyshev(Node n1, Node n2);
+        int getDistanceEucliden(Node n1, Node n2);
+        std::vector<Node> retracePath(Node startNode, Node endNode);
 };
 
 #endif

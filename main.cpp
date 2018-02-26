@@ -73,15 +73,14 @@ int main(int argc, char **argv) {
     cout << "Grid_begin " << Grid_begin << endl;
 
     Vec3f firstPos(0.090, 0.280, 0.810);
-    Node firstNode(true, firstPos, obj.GetX(firstPos), obj.GetY(firstPos), obj.GetZ(firstPos));
+    Node firstNode(true, firstPos, obj.getX(firstPos), obj.getY(firstPos), obj.getZ(firstPos));
     Vec3f secondPos(-1.014, -0.021, 1.639);
-    Node secondNode(true, secondPos, obj.GetX(secondPos), obj.GetY(secondPos), obj.GetZ(secondPos));
+    Node secondNode(true, secondPos, obj.getX(secondPos), obj.getY(secondPos), obj.getZ(secondPos));
     cout << "end " <<  secondPos << endl;
 
-    cout << obj.gridSizeX << " " << obj.gridSizeY << " " << obj.gridSizeZ << endl;
-    cout << obj.GetX(secondPos) << " " << obj.GetY(secondPos) << " " << obj.GetZ(secondPos) << endl;
+    cout << obj.getX(secondPos) << " " << obj.getY(secondPos) << " " << obj.getZ(secondPos) << endl;
 
-    vector<Node> path = obj.FindPath(firstPos, secondPos);
+    vector<Node> path = obj.findPath(firstPos, secondPos);
     path.insert(path.begin(), firstNode);
 
     window3d win(points, path);

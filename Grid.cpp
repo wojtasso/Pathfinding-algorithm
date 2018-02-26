@@ -19,22 +19,17 @@ Grid::Grid(cv::Vec3f _begin, cv::Vec3f _end, vector<cv::Vec3f> &point_cloud)
     gridSizeZ = (int)(gridWoldSize[2]/nodeSize);
 
     grid.resize(gridSizeX);
-    for (int i = 0; i < gridSizeX; i++)
-    {
+    for (int i = 0; i < gridSizeX; i++) {
         grid[i].resize(gridSizeY);
         for (int j = 0; j < gridSizeY; j++)
             grid[i][j].resize(gridSizeZ, true); //All nodes walkable
     }
 
-    cout << "Uzupelnanie ..." << endl;
     for (unsigned int i = 0; i < point_cloud.size(); i++)
-    {
-        grid[GetX(point_cloud[i])][GetY(point_cloud[i])][GetZ(point_cloud[i])] = false;
-    }
-    cout << "End " << endl;
+        grid[getX(point_cloud[i])][getY(point_cloud[i])][getZ(point_cloud[i])] = false;
 }
 
-vector<Node> Grid::GetNeighbours(Node N)
+vector<Node> Grid::getNeighbours(Node N)
 {
     vector<Node> neighbours;
 
@@ -53,7 +48,7 @@ vector<Node> Grid::GetNeighbours(Node N)
                         checkY < gridSizeY &&
                         checkZ >= 0 && checkZ < gridSizeZ) {
                     Node tmp(grid[checkX][checkY][checkZ],
-                            WorldPointFromNode(checkX, checkY, checkZ),
+                            worldPointFromNode(checkX, checkY, checkZ),
                             checkX, checkY, checkZ);
                     neighbours.push_back(tmp);
                 }
@@ -63,28 +58,28 @@ vector<Node> Grid::GetNeighbours(Node N)
     return neighbours;
 }
 
-unsigned int Grid::GetX(cv::Vec3f worldPosition)
+unsigned int Grid::getX(cv::Vec3f worldPosition)
 {
     double percentX = (worldPosition[0] - begin[0]) / gridWoldSize[0];
     int x = rint(gridSizeX * percentX);
     return x;
 }
 
-unsigned int Grid::GetY(cv::Vec3f worldPosition)
+unsigned int Grid::getY(cv::Vec3f worldPosition)
 {
     double percentY = (worldPosition[1] - begin[1]) / gridWoldSize[1];
     int y = rint(gridSizeY * percentY);
     return y;
 }
 
-unsigned int Grid::GetZ(cv::Vec3f worldPosition)
+unsigned int Grid::getZ(cv::Vec3f worldPosition)
 {
     double percentZ = (worldPosition[2] - begin[2]) / gridWoldSize[2];
     int z = rint(gridSizeZ * percentZ);
     return z;
 }
 
-cv::Vec3f Grid::WorldPointFromNode(unsigned int x, unsigned int y, unsigned int z)
+cv::Vec3f Grid::worldPointFromNode(unsigned int x, unsigned int y, unsigned int z)
 {
     cv::Vec3f worldPosition(begin[0] + x*nodeSize,
             begin[1] + y*nodeSize,
@@ -93,23 +88,23 @@ cv::Vec3f Grid::WorldPointFromNode(unsigned int x, unsigned int y, unsigned int 
 }
 
 
-vector<Node> Grid::FindPath(cv::Vec3f startPos, cv::Vec3f targetPos)
+vector<Node> Grid::findPath(cv::Vec3f startPos, cv::Vec3f targetPos)
 {
     Node startNode(true,
             startPos,
-            GetX(startPos),
-            GetY(startPos),
-            GetZ(startPos));
+            getX(startPos),
+            getY(startPos),
+            getZ(startPos));
     Node targetNode(true,
             targetPos,
-            GetX(targetPos),
-            GetY(targetPos),
-            GetZ(targetPos));
+            getX(targetPos),
+            getY(targetPos),
+            getZ(targetPos));
 
-    grid[GetX(startPos)][GetY(startPos)][GetZ(startPos)] = true;
-    grid[GetX(targetPos)][GetY(targetPos)][GetZ(targetPos)] = true;
+    grid[getX(startPos)][getY(startPos)][getZ(startPos)] = true;
+    grid[getX(targetPos)][getY(targetPos)][getZ(targetPos)] = true;
     startNode.gCost = 0;
-    startNode.hCost = GetDistance(startNode, targetNode);
+    startNode.hCost = getDistanceDiagonal(startNode, targetNode);
 
     vector<Node> openSet;
     vector<Node> closedSet;
@@ -137,26 +132,25 @@ vector<Node> Grid::FindPath(cv::Vec3f startPos, cv::Vec3f targetPos)
 
         if (currentNode == targetNode || currentNode.hCost == 0) {
             cout << currentNode.worldPosition << " " << targetNode.worldPosition << endl;
-            return RetracePath(startNode, currentNode);
+            return retracePath(startNode, currentNode);
         }
 
 
         all_nodes[idx] = currentNode;
-        vector<Node> neighbours = GetNeighbours(currentNode);
-        size_t neighbours_count = GetNeighbours(currentNode).size();
-        for (unsigned int i = 0 ; i < neighbours_count; i++)
-        {
+        vector<Node> neighbours = getNeighbours(currentNode);
+        size_t neighbours_count = getNeighbours(currentNode).size();
+        for (unsigned int i = 0 ; i < neighbours_count; i++) {
             Node neighbour = neighbours[i];
             if (!(neighbour.walkable) || (find(closedSet.begin(), closedSet.end(), neighbour) != closedSet.end()))
                 continue;
 
             unsigned int newMovementCostToNeighbour =
-                currentNode.gCost + GetDistance(currentNode, neighbour);
+                currentNode.gCost + getDistanceDiagonal(currentNode, neighbour);
             if (newMovementCostToNeighbour < neighbour.gCost ||
                     !(find(openSet.begin(), openSet.end(), neighbour) != openSet.end()))
             {
                 neighbour.gCost = newMovementCostToNeighbour;
-                neighbour.hCost = GetDistance(neighbour, targetNode);
+                neighbour.hCost = getDistanceDiagonal(neighbour, targetNode);
                 neighbour.parent = &all_nodes[idx];
 
                 if(!(find(openSet.begin(), openSet.end(), neighbour) != openSet.end()))
@@ -171,7 +165,7 @@ vector<Node> Grid::FindPath(cv::Vec3f startPos, cv::Vec3f targetPos)
     return openSet;
 }
 
-int Grid::GetDistance(Node n1, Node n2)
+int Grid::getDistanceDiagonal(Node n1, Node n2)
 {
     int dstX = abs(n1.gridX - n2.gridX);
     int dstY = abs(n1.gridY - n2.gridY);
@@ -201,7 +195,28 @@ int Grid::GetDistance(Node n1, Node n2)
     return (17*smallest + 14*(middle - smallest) + 10*(greatest - middle));
 }
 
-vector<Node> Grid::RetracePath(Node startNode, Node endNode)
+int Grid::getDistanceManhattan(Node n1, Node n2)
+{
+    return (abs(n1.gridX - n2.gridX) + abs(n1.gridY - n2.gridY) + abs(n1.gridZ - n2.gridZ))*10;
+}
+
+int Grid::getDistanceChebyshev(Node n1, Node n2)
+{
+    int dx = abs(n1.gridX - n2.gridX);
+    int dy = abs(n1.gridY - n2.gridY);
+    int dz = abs(n1.gridZ - n2.gridZ);
+    return std::max(dx, std::max(dy, dz));
+}
+
+int Grid::getDistanceEucliden(Node n1, Node n2)
+{
+    int dx = abs(n2.gridX - n1.gridX) * 10;
+    int dy = abs(n2.gridY - n1.gridY) * 10;
+    int dz = abs(n2.gridZ - n1.gridZ) * 10;
+    return (int)(1000*sqrt(pow(dx,2) + pow(dy,2) + pow(dz, 2) ) );
+}
+
+vector<Node> Grid::retracePath(Node startNode, Node endNode)
 {
     vector<Node> path;
     Node currentNode = endNode;
