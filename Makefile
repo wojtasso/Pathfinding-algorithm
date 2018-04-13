@@ -1,18 +1,15 @@
-CPPINCLUDE_DIRS =  -I. -I/usr/local/include/ -I/usr/include/eigen3/
-CPPLIBS = -L/usr/local/lib/opencv -lopencv_core -lopencv_flann -lopencv_video
-LIBS =
+CXX = g++
+CXXFLAGS = -std=c++11
+CPPFLAGS = -I. `pkg-config --cflags opencv eigen3 glew glfw3`
+LDFLAGS = `pkg-config --libs opencv eigen3 glew glfw3`
 
-CPP = g++ -std=c++11
-CPPFLAGS = -std=c++11 -Wall $(CPPINCLUDE_DIRS)
-
-CPPSOURCE =$(wildcard main.cpp shader.cpp window3d.cpp Grid.cpp Node.cpp)
 CPPOUTFILE = path_finding
 CPPOBJS = $(CPPSOURCE:.cpp=.o)
+CPPSOURCE = main.cpp shader.cpp window3d.cpp Grid.cpp Node.cpp
 
 all: $(CPPOUTFILE)
 
-$(CPPOUTFILE): $(CPPOBJS)
-		$(CPP) $(CPPFLAGS) $(CPPOBJS) -o $(CPPOUTFILE) -lGL -lGLU -lglut -lglfw -lGLEW `pkg-config --libs opencv` $(CPPLIBS)
-
+$(CPPOUTFILE): $(CPPSOURCE)
+	$(CXX) $(CXXFLAGS) $(CPPSOURCE) -o $(CPPOUTFILE) $(CPPFLAGS) $(LDFLAGS)
 clean:
-		rm -f *.o $(CPPOUTFILE)
+	rm -f *.o $(CPPOUTFILE)

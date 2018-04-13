@@ -6,7 +6,7 @@
 #include "Grid.hpp"
 #include "window3d.hpp"
 
-using namespace std;
+using std::vector;
 using cv::Vec3f;
 using cv::Vec3d;
 using cv::Mat;
@@ -26,7 +26,7 @@ Vec3d round(Vec3d input)
 int main(int argc, char **argv) {
 
     vector<Vec3f> points;
-    cout << "Odczytywanie punktow ..." << endl;
+    std::cout << "Getting 3d points from the file ..." << std::endl;
     vector<Mat> points3d_estimated;
     cv::FileStorage fs("myfile.txt", cv::FileStorage::READ);
     fs["points3d"] >> points3d_estimated;
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     }
 
     //Create Grid
-    vector<double> X_axis, Y_axis, Z_axis;
+    std::vector<double> X_axis, Y_axis, Z_axis;
 
     for (unsigned int i =0; i < points.size(); i++) {
         X_axis.push_back(points[i][0]);
@@ -69,16 +69,26 @@ int main(int argc, char **argv) {
             Z_axis[distance(Z_axis.begin(), result_Z)]);
 
     Grid obj(Grid_begin, Grid_end, points);
-    cout << "Find Path ..." << endl;
-    cout << "Grid_begin " << Grid_begin << endl;
+    std::cout << "Find Path ..." << std::endl;
+    std::cout << "Grid_begin " << Grid_begin << std::endl;
 
     Vec3f firstPos(0.090, 0.280, 0.810);
-    Node firstNode(true, firstPos, obj.getX(firstPos), obj.getY(firstPos), obj.getZ(firstPos));
+    Node firstNode(true,
+            firstPos,
+            obj.getX(firstPos),
+            obj.getY(firstPos),
+            obj.getZ(firstPos));
     Vec3f secondPos(-1.014, -0.021, 1.639);
-    Node secondNode(true, secondPos, obj.getX(secondPos), obj.getY(secondPos), obj.getZ(secondPos));
-    cout << "end " <<  secondPos << endl;
+    Node secondNode(true,
+            secondPos,
+            obj.getX(secondPos),
+            obj.getY(secondPos),
+            obj.getZ(secondPos));
+    std::cout << "end " <<  secondPos << std::endl;
 
-    cout << obj.getX(secondPos) << " " << obj.getY(secondPos) << " " << obj.getZ(secondPos) << endl;
+    std::cout << obj.getX(secondPos) << " "
+        << obj.getY(secondPos) << " "
+        << obj.getZ(secondPos) << std::endl;
 
     vector<Node> path = obj.findPath(firstPos, secondPos);
     path.insert(path.begin(), firstNode);
