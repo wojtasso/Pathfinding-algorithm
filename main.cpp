@@ -27,19 +27,8 @@ int main(int argc, char **argv) {
 
     vector<Vec3f> points;
     std::cout << "Getting 3d points from the file ..." << std::endl;
-    vector<Mat> points3d_estimated;
     cv::FileStorage fs("myfile.txt", cv::FileStorage::READ);
-    fs["points3d"] >> points3d_estimated;
-
-    for (unsigned int i = 0; i < points3d_estimated.size(); i++)
-        points.push_back(round(Vec3d(points3d_estimated[i])));
-
-    //Nowy uklad
-    for (unsigned int i = 0; i < points.size(); i++) {
-        points[i][0]= points[i][0]*-1;
-        points[i][1]= points[i][1]*-1;
-        points[i][2]= points[i][2];
-    }
+    fs["points3d"] >> points;
 
     //Create Grid
     std::vector<double> X_axis, Y_axis, Z_axis;
@@ -72,13 +61,13 @@ int main(int argc, char **argv) {
     std::cout << "Find Path ..." << std::endl;
     std::cout << "Grid_begin " << Grid_begin << std::endl;
 
-    Vec3f firstPos(0.090, 0.280, 0.810);
+    Vec3f firstPos(-0.090, -0.280, 0.810);
     Node firstNode(true,
             firstPos,
             obj.getX(firstPos),
             obj.getY(firstPos),
             obj.getZ(firstPos));
-    Vec3f secondPos(-1.014, -0.021, 1.639);
+    Vec3f secondPos(1.014, 0.021, 1.639);
     Node secondNode(true,
             secondPos,
             obj.getX(secondPos),

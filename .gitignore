@@ -1,3 +1,4 @@
 *.o
 path_finding
 tags
+.clang_complete
