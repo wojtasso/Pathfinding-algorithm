@@ -7,7 +7,7 @@ using std::endl;
 
 Grid::Grid(cv::Vec3f _begin, cv::Vec3f _end, vector<cv::Vec3f> &point_cloud)
 {
-    cout << "Tworzenie siatki ..." << endl;
+    cout << "Creating gird of nodes ..." << endl;
     cv::Vec3f increase(nodeSize, nodeSize, nodeSize);
     begin = _begin;
     end = _end + increase;

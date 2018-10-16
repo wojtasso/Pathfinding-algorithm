@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 
     vector<Vec3f> points;
     std::cout << "Getting 3d points from the file ..." << std::endl;
-    cv::FileStorage fs("myfile.txt", cv::FileStorage::READ);
+    cv::FileStorage fs("points3d.txt", cv::FileStorage::READ);
     fs["points3d"] >> points;
 
     //Create Grid
@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     path.insert(path.begin(), firstNode);
 
     window3d win(points, path);
+    win.cloudPtr = &points;
     win.loop3DWindow(points.size(), path.size());
     return 0;
 }

@@ -12,11 +12,16 @@ class window3d {
         window3d(std::vector<cv::Vec3f> &vertex, std::vector<Node> &path);
         ~window3d();
         void loop3DWindow(unsigned int pointsSize, unsigned int pathSize);
+        std::vector<cv::Vec3f> *cloudPtr;
+        unsigned int find(cv::Vec3f input);
+        cv::Vec3f round(cv::Vec3f input);
+
     private:
         void computeMatricesFromInputs();
         void get3DPos(double x, double y);
         void scrollCallback(double xoffset, double yoffset);
         void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+        void cursorPosCallback(GLFWwindow *window, double xCur, double yCur);
 
         GLFWwindow* window;
         glm::mat4 ViewMatrix;
@@ -27,7 +32,7 @@ class window3d {
         GLuint colorBuffer;
         GLuint axisBufferID;
 
-        bool dragFlag;
+        bool dragFlag = false;
         glm::vec3 position = glm::vec3(5, 5, 5);
         float horizontalAngle = 3.14f;
         float verticalAngle = -3.14f/2.0f;
@@ -36,8 +41,6 @@ class window3d {
         float mouseSpeed = 0.001f;
         double xpos = 1024.0f/2.0f, ypos = 1024.0f/2.0f;
         double xPrev = 1024.0f/2.0f, yPrev = 1024.0f/2.0f;
-
-
 };
 
 

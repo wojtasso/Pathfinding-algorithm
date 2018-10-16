@@ -37,6 +37,33 @@ static const GLfloat g_color_buffer_data[] = {
     0.0f, 0.0f, 1.0f,
 };
 
+unsigned int window3d::find(cv::Vec3f input)
+{
+    vector<cv::Vec3f>& cloud = *cloudPtr;
+
+    for(unsigned int i = 0; i < cloud.size(); i++) {
+        if (cloud[i] == input) {
+            cout << "znaleziono"<< endl;
+            return i;
+        }
+    }
+    return 65535;
+}
+
+cv::Vec3f window3d::round(cv::Vec3f input)
+{
+    //Vec3i tmp = rint(input * 1000);
+    double vec1 = trunc(input[0] * 1000.0);
+    double vec2 = trunc(input[1] * 1000.0);
+    double vec3 = trunc(input[2] * 1000.0);
+    vec1 = vec1/1000.0f;
+    vec2 = vec2/1000.0f;
+    vec3 = vec3/1000.0f;
+    cv::Vec3d output(vec1, vec2, vec3);
+    return output;
+}
+
+
 window3d::window3d(vector<cv::Vec3f> &vertex, vector<Node> &path)
 {
     /* Initialise GLFW */
@@ -96,6 +123,12 @@ window3d::window3d(vector<cv::Vec3f> &vertex, vector<Node> &path)
             [] (GLFWwindow* _window, int button, int action, int mode) {
             auto thiz = reinterpret_cast<window3d*>(glfwGetWindowUserPointer(_window));
             thiz->mouseButtonCallback(_window, button, action, mode);
+            });
+
+    glfwSetCursorPosCallback(window,
+            [] (GLFWwindow* _window, double xCur, double yCur) {
+            auto thiz = reinterpret_cast<window3d*>(glfwGetWindowUserPointer(_window));
+            thiz->cursorPosCallback(_window, xCur, yCur);
             });
 
     /* Dark blue background */
@@ -200,7 +233,7 @@ void window3d::mouseButtonCallback(GLFWwindow *window, int button, int action, i
         glm::vec3 mouseRay(ray[0], ray[1], ray[2]);
         mouseRay = glm::normalize(mouseRay);
 
-        cout << "Ray: " << mouseRay[0] << " " << mouseRay[1] << " " << mouseRay[2] << endl;
+        //cout << "Ray: " << mouseRay[0] << " " << mouseRay[1] << " " << mouseRay[2] << endl;
         //Calculate 3d coordinates
         get3DPos(x, y);
     }
@@ -212,6 +245,30 @@ void window3d::mouseButtonCallback(GLFWwindow *window, int button, int action, i
     } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         dragFlag = false;
     }
+}
+
+void window3d::cursorPosCallback(GLFWwindow *window, double xCur, double yCur)
+{
+    //Calculate mouse ray
+    /*int w, h;
+      glfwGetWindowSize(window, &w, &h);
+
+      double norm_x = (2.0f*xCur) / w - 1;
+      double norm_y = (2.0f*yCur) / h - 1;
+      norm_y =  -1.0f * norm_y;
+      glm::mat4 inv = glm::inverse(ProjectionMatrix);
+      glm::vec4 clipCoords(norm_x, norm_y, -1.0f, 1.0f);
+      glm::vec4 eyeCords = (inv * clipCoords);
+      eyeCords[2] = -1.0f;
+      eyeCords[3] = 0.0f;
+      glm::mat4 invertedView = glm::inverse(ViewMatrix);
+      glm::vec4 ray = invertedView * eyeCords;
+      glm::vec3 mouseRay(ray[0], ray[1], ray[2]);
+      mouseRay = glm::normalize(mouseRay);
+
+      cout << "Ray: " << mouseRay[0] << " " << mouseRay[1] << " " << mouseRay[2] << endl;*/
+    //Calculate 3d coordinates
+    //get3DPos(xCur, yCur);
 }
 
 void window3d::scrollCallback(double xoffset, double yoffset)
@@ -271,6 +328,8 @@ void window3d::get3DPos(double x, double y)
     pos = unProject( glm::vec3(winX, winY, winZ), ViewMatrix, ProjectionMatrix, ViewPort);
 
     cout << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
+    cout << round(cv::Vec3f(pos[0], pos[1], pos[2])) << endl;
+    find(round(cv::Vec3f(pos[0], pos[1], pos[2])));
     //return Vec3d(posX, posY, posZ);
 }
 
